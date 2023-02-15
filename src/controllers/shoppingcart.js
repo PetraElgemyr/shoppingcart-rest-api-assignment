@@ -97,6 +97,8 @@ exports.addProductToShoppingcart = async (req, res, next) => {
     throw new NotFoundError("Sorry! This product does not exist");
   }
 
+  shoppingcart.totalAmount = 0;
+
   for (let i = 0; i < shoppingcart.products.length; i++) {
     // return console.log(json(shoppingcart.products[i].productId));
     if (shoppingcart.products[i]._id == givenProductId) {
