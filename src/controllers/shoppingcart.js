@@ -102,6 +102,14 @@ exports.addProductToShoppingcart = async (req, res, next) => {
     if (shoppingcart.products[i]._id == givenProductId) {
       shoppingcart.products[i].amount++;
       await shoppingcart.save();
+
+      for (let i = 0; i < shoppingcart.products.length; i++) {
+        shoppingcart.totalAmount +=
+          shoppingcart.products[i].productPrice *
+          shoppingcart.products[i].amount;
+      }
+      await shoppingcart.save();
+
       return res.status(201).json(shoppingcart);
     }
   }
@@ -111,6 +119,14 @@ exports.addProductToShoppingcart = async (req, res, next) => {
       shoppingcart.products.push(productToAdd);
       // shoppingcart.products[i].amount = 1;
       await shoppingcart.save();
+
+      for (let i = 0; i < shoppingcart.products.length; i++) {
+        shoppingcart.totalAmount +=
+          shoppingcart.products[i].productPrice *
+          shoppingcart.products[i].amount;
+      }
+      await shoppingcart.save();
+
       return res.status(201).json(shoppingcart);
     }
   }
