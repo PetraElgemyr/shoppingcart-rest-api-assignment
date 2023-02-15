@@ -6,6 +6,8 @@ const {
   getShoppingcartById,
   addProductToShoppingcart,
   deleteProductFromShoppingcart,
+  reduceProductAmountFromShoppingcart,
+  emptyShoppingcart,
 } = require("../controllers/shoppingcart");
 
 // GET /api/v1/shoppingcarts
@@ -19,5 +21,9 @@ router.post("/", createNewShoppingcart);
 router.post("/:cartId", addProductToShoppingcart);
 
 router.delete("/:cartId", deleteProductFromShoppingcart);
+
+router.put("/:cartId", reduceProductAmountFromShoppingcart);
+
+router.put("/:cartId", emptyShoppingcart);
 
 module.exports = router;

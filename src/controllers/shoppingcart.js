@@ -134,9 +134,67 @@ exports.addProductToShoppingcart = async (req, res, next) => {
   }
 };
 
+exports.reduceProductAmountFromShoppingcart = async (req, res, next) => {
+  const cartId = req.params.cartId;
+  const givenProductId = req.body.productId;
+  const shoppingcart = await Shoppingcart.findById(cartId);
+
+  shoppingcart.totalAmount = 0;
+
+  for (let i = 0; i < shoppingcart.products.length; i++) {
+    // return console.log(json(shoppingcart.products[i].productId));
+
+    if (shoppingcart.products[i]._id == givenProductId) {
+      shoppingcart.products[i].amount--;
+      // await shoppingcart.save();
+
+      if (shoppingcart.products[i].amount < 1) {
+        shoppingcart.products.splice([i], 1);
+        // await shoppingcart.save();
+      }
+
+      for (let i = 0; i < shoppingcart.products.length; i++) {
+        shoppingcart.totalAmount +=
+          shoppingcart.products[i].productPrice *
+          shoppingcart.products[i].amount;
+      }
+
+      await shoppingcart.save();
+      return res.status(201).json(shoppingcart);
+    }
+  }
+};
+
 exports.deleteProductFromShoppingcart = async (req, res, next) => {
   const cartId = req.params.cartId;
   const givenProductId = req.body.productId;
-
   const shoppingcart = await Shoppingcart.findById(cartId);
+
+  shoppingcart.totalAmount = 0;
+
+  for (let i = 0; i < shoppingcart.products.length; i++) {
+    if (shoppingcart.products[i]._id == givenProductId) {
+      shoppingcart.products.splice([i], 1);
+      await shoppingcart.save();
+    }
+  }
+  for (let i = 0; i < shoppingcart.products.length; i++) {
+    shoppingcart.totalAmount +=
+      shoppingcart.products[i].productPrice * shoppingcart.products[i].amount;
+  }
+  await shoppingcart.save();
+  return res.status(201).json(shoppingcart);
 };
+
+// exports.emptyShoppingcart = async (req, res, next) => {
+//   const cartId = req.params.cartId;
+//   const shoppingcart = await Shoppingcart.findById(cartId);
+//   shoppingcart.totalAmount = 0;
+//   await shoppingcart.save();
+
+//   return res.status(201).json(shoppingcart.products.length);
+//   // shoppingcart.products.splice(0, shoppingcart.products.length);
+
+//   // await shoppingcart.save();
+//   // return res.status(201).json(shoppingcart);
+// };
