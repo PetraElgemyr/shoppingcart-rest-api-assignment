@@ -47,71 +47,137 @@ exports.getProductById = async (req, res, next) => {
   return res.json(product);
 };
 
-/*
 exports.addProductToShoppingcart = async (req, res, next) => {
   try {
-    //dessa skickas in i bodyn i postman (name, price, cartId)
-    // const productName = req.body.productName || "";
-    // const productPrice = req.body.productPrice;
     const cartId = req.body.cartId;
     const productId = req.params.productId;
 
-    //does shoppingcart exists?
-    const cart = await Shoppingcart.findById(cartId);
+    const shoppingcart = await Shoppingcart.findById(cartId);
 
-    if (!cart) {
+    if (!shoppingcart) {
       throw new NotFoundError("Sorry! This shoppingcart does not exist");
     }
 
-    //if productName is not provided
-    // if (!productName) {
-    //   return res.status(400).json({
-    //     message: "You must provide a product name",
-    //   });
-    // }
-
-    //if product does not exist
     const productToAdd = await Product.findById(productId);
 
     if (!productToAdd) {
       throw new NotFoundError("Sorry! This product does not exist");
     }
 
-    console.log(productToAdd);
+    console.log("produkten", productToAdd);
+    console.log("varukorgen", shoppingcart);
 
-    //om cart och product existerar
+    shoppingcart.totalAmount = 0;
 
-    // const myResponse = await Shoppingcart.find(productId);
-    // if (!myResponse) {
-    //   cart.productList.push(productToAdd);
-    //   await cart.save();
-    //   return res.status(201).json(cart);
-    // }
-
-    // if (myResponse) {
-    //   cart.productList.amount++;
-    // }
-
-    for (let i = 0; i < cart.products.length; i++) {
-      if (cart.products[i].productId === productId) {
-        cart.products[i].amount++;
-
-        return console.log(cart);
+    for (let i = 0; i < shoppingcart.products.length; i++) {
+      if (shoppingcart.products[i]._id == productId) {
+        shoppingcart.products[i].amount++;
+        await shoppingcart.save();
+        return res.status(201).json(shoppingcart);
       }
+
+      for (let i = 0; i < shoppingcart.products.length; i++) {
+        shoppingcart.totalAmount +=
+          shoppingcart.products[i].productPrice *
+          shoppingcart.products[i].amount;
+      }
+      await shoppingcart.save();
+      return res.status(201).json(shoppingcart);
     }
 
-    cart.products.push(productToAdd);
-    return cart;
+    for (let i = 0; i < shoppingcart.products.length; i++) {
+      if (shoppingcart.products[i]._id != productId) {
+        shoppingcart.products.push(productToAdd);
+        await shoppingcart.save();
+        return res.status(201).json(shoppingcart);
+      }
 
-    //om produkten inte finns i varukorgen redan
+      for (let i = 0; i < shoppingcart.products.length; i++) {
+        shoppingcart.totalAmount +=
+          shoppingcart.products[i].productPrice *
+          shoppingcart.products[i].amount;
+      }
+      await shoppingcart.save();
+      return res.status(201).json(shoppingcart);
+    }
   } catch (error) {
     console.error(error);
 
     return res.status(500).json({
       message: "oh no something went wrong",
-      // message: error.message,
     });
   }
-};*/
+};
+
+/**/
+
+//doesn't work :(
+exports.reduceProductAmountFromShoppingcart = async (req, res, next) => {
+  try {
+    const cartId = req.body.cartId;
+    const givenProductId = req.params.productId;
+
+    const shoppingcart = await Shoppingcart.findById(cartId);
+    if (!shoppingcart) {
+      throw new NotFoundError("Sorry! This shoppingcart does not exist");
+    }
+
+    const productToRemove = await Product.findById(productId);
+    if (!productToRemove) {
+      throw new NotFoundError("Sorry! This product does not exist");
+    }
+
+    shoppingcart.totalAmount = 0;
+    await shoppingcart.save();
+    // for (let i = 0; i < shoppingcart.products.length; i++) {
+    //   if (shoppingcart.products[i]._id == productId) {
+    //     shoppingcart.products[i].amount--;
+
+    //     if (shoppingcart.products[i].amount < 1) {
+    //       shoppingcart.products.splice([i], 1);
+    //       await shoppingcart.save();
+    //       return res.status(201).json(shoppingcart);
+    //     }
+    //   }
+
+    //   for (let i = 0; i < shoppingcart.products.length; i++) {
+    //     shoppingcart.totalAmount +=
+    //       shoppingcart.products[i].productPrice *
+    //       shoppingcart.products[i].amount;
+    //   }
+
+    //   await shoppingcart.save();
+    //   return res.status(201).json(shoppingcart);
+    // }
+
+    for (let i = 0; i < shoppingcart.products.length; i++) {
+      if (shoppingcart.products[i]._id == givenProductId) {
+        shoppingcart.products[i].amount--;
+        await shoppingcart.save();
+
+        if (shoppingcart.products[i].amount < 1) {
+          shoppingcart.products.splice([i], 1);
+          await shoppingcart.save();
+        }
+
+        for (let i = 0; i < shoppingcart.products.length; i++) {
+          shoppingcart.totalAmount +=
+            shoppingcart.products[i].productPrice *
+            shoppingcart.products[i].amount;
+        }
+
+        await shoppingcart.save();
+        return res.status(201).json(shoppingcart);
+      }
+    }
+    /*
+
+*/
+  } catch (error) {
+    return res.status(500).json({
+      message: "oh no something went wrong",
+    });
+  }
+};
 
 exports.deleteProductInCart = async (req, res, next) => {};

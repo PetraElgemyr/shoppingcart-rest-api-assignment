@@ -80,7 +80,7 @@ exports.createNewShoppingcart = async (req, res, next) => {
     .status(201)
     .json(newCart)
 };
-
+/*
 exports.addProductToShoppingcart = async (req, res, next) => {
   const cartId = req.params.cartId;
   const givenProductId = req.body.productId;
@@ -185,16 +185,24 @@ exports.deleteProductFromShoppingcart = async (req, res, next) => {
   await shoppingcart.save();
   return res.status(201).json(shoppingcart);
 };
+*/
+exports.deleteShoppingcartById = async (req, res, next) => {
+  try {
+    const cartId = req.params.cartId;
+    const deleteCart = await Shoppingcart.findById(cartId);
 
-// exports.emptyShoppingcart = async (req, res, next) => {
-//   const cartId = req.params.cartId;
-//   const shoppingcart = await Shoppingcart.findById(cartId);
-//   shoppingcart.totalAmount = 0;
-//   await shoppingcart.save();
+    if (!deleteCart) {
+      return res.sendStatus(404);
+    }
 
-//   return res.status(201).json(shoppingcart.products.length);
-//   // shoppingcart.products.splice(0, shoppingcart.products.length);
+    await deleteCart.delete();
+    await deleteCart.save();
 
-//   // await shoppingcart.save();
-//   // return res.status(201).json(shoppingcart);
-// };
+    return res.sendStatus(204);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
