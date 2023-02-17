@@ -180,4 +180,31 @@ exports.reduceProductAmountFromShoppingcart = async (req, res, next) => {
   }
 };
 
-exports.deleteProductInCart = async (req, res, next) => {};
+exports.deleteProductInShoppingcart = async (req, res, next) => {
+  try {
+    const cartId = req.body.cartId;
+    const givenProductId = req.params.productId;
+    const shoppingcart = await Shoppingcart.findById(cartId);
+
+    shoppingcart.totalAmount = 0;
+
+    for (let i = 0; i < shoppingcart.products.length; i++) {
+      if (shoppingcart.products[i]._id == givenProductId) {
+        shoppingcart.products.splice([i], 1);
+        await shoppingcart.save();
+      }
+    }
+
+    for (let i = 0; i < shoppingcart.products.length; i++) {
+      shoppingcart.totalAmount +=
+        shoppingcart.products[i].productPrice * shoppingcart.products[i].amount;
+    }
+
+    await shoppingcart.save();
+    return res.status(201).json(shoppingcart);
+  } catch (error) {
+    return res.status(500).json({
+      message: "oh no something went wrong",
+    });
+  }
+};

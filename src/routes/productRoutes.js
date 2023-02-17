@@ -5,6 +5,7 @@ const {
   getProductById,
   addProductToShoppingcart,
   reduceProductAmountFromShoppingcart,
+  deleteProductInShoppingcart,
 } = require("../controllers/product");
 
 //getAllProducts
@@ -14,10 +15,8 @@ router.get("/:productId", getProductById);
 
 router.post("/:productId", addProductToShoppingcart);
 
-// router.delete("/:productId", deleteProductFromShoppingcart);
+router.delete("/:productId", deleteProductInShoppingcart);
 
 router.put("/:productId", reduceProductAmountFromShoppingcart);
-
-// router.post("/:productId", addProductToShoppingcart);
 
 module.exports = router;
