@@ -8,6 +8,7 @@ const {
   // deleteProductFromShoppingcart,
   // reduceProductAmountFromShoppingcart,
   deleteShoppingcartById,
+  emptyShoppingcart,
 } = require("../controllers/shoppingcart");
 
 // GET /api/v1/shoppingcarts
@@ -23,6 +24,10 @@ router.post("/", createNewShoppingcart);
 // router.delete("/:cartId", deleteProductFromShoppingcart);
 
 // router.put("/:cartId", reduceProductAmountFromShoppingcart);
+
+// router.delete("/:cartId", deleteShoppingcartById);
+
+router.put("/:cartId", emptyShoppingcart);
 
 router.delete("/:cartId", deleteShoppingcartById);
 

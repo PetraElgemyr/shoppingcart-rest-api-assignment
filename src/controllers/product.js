@@ -1,3 +1,4 @@
+const { json } = require("express");
 const Product = require("../models/Product");
 const Shoppingcart = require("../models/Shoppingcart");
 
@@ -128,9 +129,6 @@ exports.addProductToShoppingcart = async (req, res, next) => {
   }
 };
 
-/**/
-
-//doesn't work :(
 exports.reduceProductAmountFromShoppingcart = async (req, res, next) => {
   try {
     const cartId = req.body.cartId;

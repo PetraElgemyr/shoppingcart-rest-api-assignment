@@ -186,23 +186,42 @@ exports.deleteProductFromShoppingcart = async (req, res, next) => {
   return res.status(201).json(shoppingcart);
 };
 */
+
+//funkar ej att deleta cart
 exports.deleteShoppingcartById = async (req, res, next) => {
   try {
     const cartId = req.params.cartId;
-    const deleteCart = await Shoppingcart.findById(cartId);
+    const cartToDelete = await Shoppingcart.findById(cartId);
 
-    if (!deleteCart) {
+    if (!cartToDelete) {
       return res.sendStatus(404);
     }
 
-    await deleteCart.delete();
-    await deleteCart.save();
+    await cartToDelete.delete();
 
     return res.sendStatus(204);
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      message: error.message,
+      message: "oh no something went wrong",
+    });
+  }
+};
+
+exports.emptyShoppingcart = async (req, res, next) => {
+  try {
+    const cartId = req.params.cartId;
+    const shoppingcart = await Shoppingcart.findById(cartId);
+
+    if (shoppingcart.products.length > 0) {
+      shoppingcart.products.splice(0, shoppingcart.products.length);
+      shoppingcart.totalAmount = 0;
+      await shoppingcart.save();
+      return res.status(201).json(shoppingcart);
+    }
+  } catch (error) {
+    return res.status(500).json({
+      message: "oh no something went wrong",
     });
   }
 };
