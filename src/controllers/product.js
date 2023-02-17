@@ -69,12 +69,10 @@ exports.addProductToShoppingcart = async (req, res, next) => {
 
     shoppingcart.totalAmount = 0;
 
-    for (let i = 0; i < shoppingcart.products.length; i++) {
-      if (shoppingcart.products[i]._id == productId) {
-        shoppingcart.products[i].amount++;
-        await shoppingcart.save();
-        return res.status(201).json(shoppingcart);
-      }
+    //Om listan är tom !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if (shoppingcart.products.length == 0) {
+      shoppingcart.products.push(productToAdd);
+      await shoppingcart.save();
 
       for (let i = 0; i < shoppingcart.products.length; i++) {
         shoppingcart.totalAmount +=
@@ -85,20 +83,41 @@ exports.addProductToShoppingcart = async (req, res, next) => {
       return res.status(201).json(shoppingcart);
     }
 
-    for (let i = 0; i < shoppingcart.products.length; i++) {
-      if (shoppingcart.products[i]._id != productId) {
-        shoppingcart.products.push(productToAdd);
-        await shoppingcart.save();
-        return res.status(201).json(shoppingcart);
+    //Om listan INTE är tom !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    if (shoppingcart.products.length > 0) {
+      for (let i = 0; i < shoppingcart.products.length; i++) {
+        //Om produktID finns i listan
+        if (shoppingcart.products[i]._id == productId) {
+          shoppingcart.products[i].amount++;
+          await shoppingcart.save();
+
+          for (let i = 0; i < shoppingcart.products.length; i++) {
+            shoppingcart.totalAmount +=
+              shoppingcart.products[i].productPrice *
+              shoppingcart.products[i].amount;
+          }
+          await shoppingcart.save();
+          return res.status(201).json(shoppingcart);
+        }
       }
 
+      //om produktID inte finns i listan
       for (let i = 0; i < shoppingcart.products.length; i++) {
-        shoppingcart.totalAmount +=
-          shoppingcart.products[i].productPrice *
-          shoppingcart.products[i].amount;
+        if (shoppingcart.products[i]._id != productId) {
+          shoppingcart.products.push(productToAdd);
+          await shoppingcart.save();
+
+          for (let i = 0; i < shoppingcart.products.length; i++) {
+            shoppingcart.totalAmount +=
+              shoppingcart.products[i].productPrice *
+              shoppingcart.products[i].amount;
+          }
+          await shoppingcart.save();
+          return res.status(201).json(shoppingcart);
+        }
+        // return res.status(201).json(shoppingcart);
       }
-      await shoppingcart.save();
-      return res.status(201).json(shoppingcart);
     }
   } catch (error) {
     console.error(error);
@@ -122,33 +141,13 @@ exports.reduceProductAmountFromShoppingcart = async (req, res, next) => {
       throw new NotFoundError("Sorry! This shoppingcart does not exist");
     }
 
-    const productToRemove = await Product.findById(productId);
+    const productToRemove = await Product.findById(givenProductId);
     if (!productToRemove) {
       throw new NotFoundError("Sorry! This product does not exist");
     }
 
     shoppingcart.totalAmount = 0;
     await shoppingcart.save();
-    // for (let i = 0; i < shoppingcart.products.length; i++) {
-    //   if (shoppingcart.products[i]._id == productId) {
-    //     shoppingcart.products[i].amount--;
-
-    //     if (shoppingcart.products[i].amount < 1) {
-    //       shoppingcart.products.splice([i], 1);
-    //       await shoppingcart.save();
-    //       return res.status(201).json(shoppingcart);
-    //     }
-    //   }
-
-    //   for (let i = 0; i < shoppingcart.products.length; i++) {
-    //     shoppingcart.totalAmount +=
-    //       shoppingcart.products[i].productPrice *
-    //       shoppingcart.products[i].amount;
-    //   }
-
-    //   await shoppingcart.save();
-    //   return res.status(201).json(shoppingcart);
-    // }
 
     for (let i = 0; i < shoppingcart.products.length; i++) {
       if (shoppingcart.products[i]._id == givenProductId) {
