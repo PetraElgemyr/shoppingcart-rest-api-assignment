@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Product = require("./Product");
 const ProductSchema = require("./Product");
 
-const ShoppingcartSchema2 = new mongoose.Schema({
+const ShoppingcartSchema = new mongoose.Schema({
   cartName: String,
   totalAmount: { type: Number, required: true },
   products: [
@@ -15,4 +15,4 @@ const ShoppingcartSchema2 = new mongoose.Schema({
   ],
 });
 
-module.exports = mongoose.model("Shoppingcart", ShoppingcartSchema2);
+module.exports = mongoose.model("Shoppingcart", ShoppingcartSchema);
