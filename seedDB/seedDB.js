@@ -1,6 +1,6 @@
 require("dotenv").config();
 const { mockProductsData } = require("../seedDB/products");
-const Cart = require("../src/models/Cart");
+const Shoppingcart = require("../src/models/Shoppingcart");
 const Product = require("../src/models/Product");
 const mongoose = require("mongoose");
 
