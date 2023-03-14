@@ -1,36 +1,21 @@
 const { json } = require("express");
 const Product = require("../models/Product");
 const Shoppingcart = require("../models/Shoppingcart");
+const { NotFoundError, BadRequestError } = require("./../utils/errors");
 
 exports.getAllProducts = async (req, res, next) => {
-  /* 
-    Get only number of projects specified in "limit" query
-    parameter. Default limit is 10 (aka unless told otherwise
-    only get 10 projects at a time)
-  */
   const limit = Number(req.query?.limit || 10);
-
-  /* 
-    Skip the number of projects specified in the "offset"
-    query parameter according to default project sorting. 
-    If no offset given, default is 0 (aka start from the
-    beginning)
-	*/
   const offset = Number(req.query?.offset || 0);
-
-  // Get all products; filter according to "limit" and "offset" query params
   const products = await Product.find().limit(limit).skip(offset);
-  // Get total number of projects available in database
   const totalProductsInDatabase = await Product.countDocuments();
-  // Create and send our response
+
   return res.json({
-    data: products, // Send projects result
+    data: products,
     meta: {
-      // meta information about request
-      total: totalProductsInDatabase, // Total num projects available in db
-      limit: limit, // Num of projects asked for
-      offset: offset, // Num or projects asked to skip
-      count: products.length, // Num of projects sent back
+      total: totalProductsInDatabase,
+      limit: limit,
+      offset: offset,
+      count: products.length,
     },
   });
 };
@@ -38,13 +23,10 @@ exports.getAllProducts = async (req, res, next) => {
 exports.getProductById = async (req, res, next) => {
   const productId = req.params.productId;
 
-  // Find project with that id
   const product = await Product.findById(productId);
 
-  // IF(no project) return 404
   if (!product) throw new NotFoundError("Sorry! This product does not exist");
 
-  // respond with project data (200 OK)
   return res.json(product);
 };
 
@@ -70,7 +52,6 @@ exports.addProductToShoppingcart = async (req, res, next) => {
 
     shoppingcart.totalAmount = 0;
 
-    //Om listan är tom !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     if (shoppingcart.products.length == 0) {
       shoppingcart.products.push(productToAdd);
       await shoppingcart.save();
@@ -84,11 +65,8 @@ exports.addProductToShoppingcart = async (req, res, next) => {
       return res.status(201).json(shoppingcart);
     }
 
-    //Om listan INTE är tom !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
     if (shoppingcart.products.length > 0) {
       for (let i = 0; i < shoppingcart.products.length; i++) {
-        //Om produktID finns i listan
         if (shoppingcart.products[i]._id == productId) {
           shoppingcart.products[i].amount++;
           await shoppingcart.save();
@@ -103,7 +81,6 @@ exports.addProductToShoppingcart = async (req, res, next) => {
         }
       }
 
-      //om produktID inte finns i listan
       for (let i = 0; i < shoppingcart.products.length; i++) {
         if (shoppingcart.products[i]._id != productId) {
           shoppingcart.products.push(productToAdd);
@@ -117,7 +94,6 @@ exports.addProductToShoppingcart = async (req, res, next) => {
           await shoppingcart.save();
           return res.status(201).json(shoppingcart);
         }
-        // return res.status(201).json(shoppingcart);
       }
     }
   } catch (error) {

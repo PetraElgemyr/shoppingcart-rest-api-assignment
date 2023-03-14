@@ -1,8 +1,11 @@
 require("dotenv").config();
+require("express-async-errors");
 const express = require("express");
 const mongoose = require("mongoose");
 const shoppingcartRoutes = require("./routes/shoppingcartRoutes");
 const productRoutes = require("./routes/productRoutes");
+const { errorMiddleware } = require("./middleware/errorMiddleware");
+const { notFoundMiddleware } = require("./middleware/notFoundMiddleware");
 
 const app = express();
 
@@ -16,6 +19,9 @@ app.use((req, res, next) => {
 app.use("/api/v1/shoppingcarts", shoppingcartRoutes);
 
 app.use("/api/v1/products", productRoutes);
+
+app.use(notFoundMiddleware);
+app.use(errorMiddleware);
 
 const port = process.env.PORT || 4000;
 async function run() {
